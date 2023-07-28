@@ -79,7 +79,7 @@ class Post(models.Model):
         return f'{self.text[:124]}...'
 
     def __str__(self):
-        return f'{self.news.title()}: {self.text[:10]}'
+        return f'{self.news.title()}: {self.text[:10]}'  # !!!!!!!!!!!!!!!!!!!!
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
@@ -90,8 +90,7 @@ class PostCategory(models.Model):
     category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
 
     def __str__(self):
-        return self.category
-
+        return self.category  # !!!!!!!!!!!!!!!!!!!
 
 class Comment(models.Model):
     comment_post = models.ForeignKey(Post, on_delete=models.CASCADE)
@@ -116,5 +115,3 @@ class Comment(models.Model):
     def dislike(self):
         self.comment_rating -= 1
         self.save()
-
-# Create your models here.

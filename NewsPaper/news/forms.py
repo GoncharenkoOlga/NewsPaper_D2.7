@@ -13,7 +13,7 @@ class PostForm(forms.ModelForm):
             'text',
             'title',
             'choice',
-            #  'posting_time',  не нужно указывать, так как заполняется автоматически
+            'posting_time',  #не нужно указывать, так как заполняется автоматически
             'category',
             'post_rating',
         ]  # можно прописать __all__

@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMix
 
 class PostsList(ListView):
     model = Post
-    ordering = '-posting_time'  # от более свежей к самой старой
+    ordering = 'posting_time'  # от более свежей к самой старой
     template_name = 'posts.html'
     context_object_name = 'posts'
     paginate_by = 3

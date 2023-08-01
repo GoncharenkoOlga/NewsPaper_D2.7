@@ -1,152 +1,46 @@
 <!DOCTYPE html>
-{% load cache %}
-{% load static %}
-{% load i18n %}
-{% load tz %}
-
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>
-            {% block title %}
-            {{ flatpage.title }}
-            {% endblock title %}
-        </title>
-
+        <title>Новостной портал Калининграда</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <!-- Core theme CSS (includes Bootstrap)-->
+        {% load static %}
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
-        <style>
-            body {background-color: {% if current_hour >= 19 or current_hour <= 7 %} LightSteelBlue
-            {% else %} MintCream {% endif %};}
-        </style>
     </head>
     <body>
         <!-- Responsive navbar-->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-            <div class="container">
-                <table>
-                <tr><td> {% cache 120 headerNP %}
-                <a class="navbar-brand" href="/admin/">News Portal</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse"
-                        data-target="#navbarResponsive"
-                        aria-controls="navbarResponsive" aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                {% endcache %}
-                </td></tr>
-                <tr><td><div class="text-white">
-                    UTC {{ current_utc }} ,
-                    Local {{ current_time }}
-                </div></td></tr>
-                </table>
-                <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ml-auto">
-<!--                        <li class="nav-item active">-->
-<!--                            <a class="nav-link" href="#">Home-->
-<!--                                <span class="sr-only">(current)</span>-->
-<!--                            </a>-->
-<!--                        </li>-->
-                        {% cache 10 headerPC %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/posts/">{% trans "Posts" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/posts/posts-by-category">{% trans "by Category" %}</a>
-                        </li>
-                        {% endcache %}
-                        {% if perms.news.add_post and in_limit != 0 %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/posts/create">{% trans "Create post" %}</a>
-                        </li>
-                        {% endif %}
-                        {% cache 10 headerAC %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/about/">{% trans "About" %}</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/contact/">{% trans "Contact" %}</a>
-                        </li>
-                        {% endcache %}
-<!--                        <li class="nav-item">-->
-<!--                            <a class="nav-link" href="/accounts/signup">Registration</a>-->
-<!--                        </li>-->
-<!--                        <li class="nav-item">-->
-<!--                            <a class="nav-link" href="/accounts/login">Log in</a>-->
-<!--                        </li>-->
-                    </ul>
-                </div>
-                <div class="nav-right">
-                    <ul class="navbar-nav ml-auto">
-                            <li class="nav-item">
-                                <table>
-                                <tr><td>
-                                <form action="{% url 'set_language' %}" method="post" align="right">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="next" value="{{ redirect_to }}">
-                                    <select name="language" id="">
-                                        {% get_current_language as LANGUAGE_CODE %}
-                                        {% get_available_languages as LANGUAGES %}
-                                        {% get_language_info_list for LANGUAGES as languages %}
-                                        {% for language in languages %}
-                                            <option value="{{ language.code }}" {% if language.code == LANGUAGE_CODE %} selected {% endif %}>
-                                                {{ language.name_local }} - {{ language.code }}
-                                            </option>
-                                        {% endfor %}
-                                    </select>
-                                    <input type="submit" value=">>">
-                                </form>
-                                </td></tr>
-                                <tr><td class="text-white">
-                                    {% get_current_timezone as TIME_ZONE %}
-                                    <form action="{% url 'set_timezone' %}?next={{current_url}}" method="post">
-                                        {% csrf_token %}
-                                        <label for="timezone">{% trans "Time zone" %}:</label>
-                                        <select name="timezone">
-                                            {% for tz in timezones %}
-                                            <option value="{{ tz }}"{% if tz == TIME_ZONE %} selected{% endif %}>{{ tz }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <input type="submit" value=">>">
-                                    </form>
-                                </td></tr>
-                                </table>
-                            </li>
-                    </ul>
-                </div>
-                <div class="nav-right">
-                    <ul class="navbar-nav ml-auto">
-                        {% if not user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="/simpleaccounts/login">{% trans "Simple Log in" %}</a>
-                            </li>
-                        {% endif %}
-                        {% if user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'profile_user' pk=user.id %}">
-                                    {% trans "Profile" %} {{ user.username }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="/simpleaccounts/logout">{% trans "Log out" %}</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-        </nav>
+   <div class="container">
+       <a class="navbar-brand" href="#">Новостной портал</a>
+       <button class="navbar-toggler" type="button" data-toggle="collapse"
+               data-target="#navbarResponsive"
+               aria-controls="navbarResponsive" aria-expanded="false"
+               aria-label="Toggle navigation">
+           <span class="navbar-toggler-icon"></span>
+       </button>
+       <div class="collapse navbar-collapse" id="navbarResponsive">
+           <ul class="navbar-nav ml-auto">
+               <li class="nav-item active">
+
+               </li>
+
+           </ul>
+       </div>
+   </div>
+</nav>
         <!-- Page content-->
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    {% block content %}
-                    {{ flatpage.content }}
-                    {% endblock content %}
-                </div>
-            </div>
-        </div>
+<div class="container">
+   <div class="row">
+       <div class="col-lg-12 text-center">
+           {% block content %}
+           {% endblock content %}
+       </div>
+   </div>
+</div>
     </body>
 </html>

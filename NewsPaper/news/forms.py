@@ -1,40 +1,31 @@
 from django import forms
+from .models import Post, Author
 from django.core.exceptions import ValidationError
-from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy
-
-from .models import Post
 
 
 class PostForm(forms.ModelForm):
+    title = forms.CharField(min_length=20)  # В самом поле поставили ограничение на минимальную длину
+
     class Meta:
         model = Post
-        fields = ['post',
-                  'title',
-                  'text',
-                  'category',
-                  # 'author',
-                  ]
-        labels = {
-            'category': gettext_lazy('Category'),
-        }
+        fields = [
+            'author',
+            'text',
+            'title',
+            'choice',
+            # 'posting_time',
+            'category',
+            'post_rating',
+        ]  # можно прописать __all__
 
-    def clean(self):
-        cleaned_data = super().clean()
-        title, text = cleaned_data.get('title'), cleaned_data.get('text')
-        if text != 'In progress' and len(text) < 20:
-            raise ValidationError({
-                'text': _('Meaningless publication under 20 symbols demands upgrade.')
-            })
-        if title is not None and title.lower() in text.lower():
-            err_text = _("Rewrite title, don't repeat yourself.")
-            raise ValidationError({'title': err_text})
-        return cleaned_data
+        def clean(self):  # Мы переопределили метод clean и реализовали в нём проверку.
+            cleaned_data = super().clean()
+            text = cleaned_data.get("text")
+            title = cleaned_data.get("title")
 
-    def clean_title(self):
-        title = self.cleaned_data['title']
-        if title[0].islower():
-            raise ValidationError(
-                _("It's title, start with Capital!")
-            )
-        return title
+            if text == title:
+                raise ValidationError(
+                    "Текст не должен быть идентичен названию."
+                )
+            return cleaned_data
+

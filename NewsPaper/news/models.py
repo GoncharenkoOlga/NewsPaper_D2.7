@@ -89,8 +89,8 @@ class PostCategory(models.Model):
     post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
     category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
 
-    def __str__(self):
-        return self.category  # !!!!!!!!!!!!!!!!!!!
+#    def __str__(self):
+#        return self.category  # !!!!!!!!!!!!!!!!!!!
 
 class Comment(models.Model):
     comment_post = models.ForeignKey(Post, on_delete=models.CASCADE)

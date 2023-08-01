@@ -1,117 +1,136 @@
-from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth.models import User
+from django.db.models import Sum
+from datetime import datetime
 from django.urls import reverse
-from django.core.validators import MinValueValidator
+from django.core.cache import cache
+from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 
 
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Связь: один к одному
-    rating = models.IntegerField(default=0, blank=True)
+    userAuthor = models.OneToOneField(User, on_delete=models.CASCADE)
+    rating = models.SmallIntegerField(default=0)
 
-    @property
-    def rating_author(self):  # Определяем рейтинг автора публикации
-        return self.rating
+    def __str__(self):
+        return f'{self.userAuthor.first_name} {self.userAuthor.last_name.upper()}'
 
-    @rating_author.setter
-    def rating_author(self, value):  # Записываем рейтинг автора публикации
-        self.rating = int(value) if value >= 0 else 0
+    def update_rating(self):
+        prt = self.post_set.aggregate(post_rating=Sum('rating'))
+        post_rt = 0
+        post_rt += prt.get('post_rating') if prt.get('post_rating') else 0
+
+        crt = self.userAuthor.comment_set.aggregate(comment_rating=Sum('rating'))
+        comment_rt = 0
+        comment_rt += crt.get('comment_rating') if crt.get('comment_rating') else 0
+
+        self.rating = post_rt * 3 + comment_rt
         self.save()
-
-    def update_rating(self):  # Пересчет рейтинга в соответствии с условием задачи
-        self.rating = 0
-        self.comment_rating = 0
-        self.post_rating = 0
-        self.total_comment_post = 0
-        for com_iter in Comment.objects.filter(comment_user=self.user):
-            self.comment_rating = self.comment_rating + com_iter.comment_rating
-        for post_iter in Post.objects.filter(author=self):
-            self.post_rating = self.post_rating + post_iter.post_rating
-            for com_iter in Comment.objects.filter(comment_post=post_iter):
-                self.total_comment_post = self.total_comment_post + com_iter.comment_rating
-        self.rating = (self.post_rating * 3) + self.comment_rating + self.total_comment_post
-        self.save()
-
-    def __str__(self):  # При обращении возвращаем текст
-        return self.user.username
 
 
 class Category(models.Model):
-    category_name = models.CharField(max_length=100, unique=True)  # Название -- уникально
+    CATEGORIES = [
+        ('NW', gettext_lazy('News')),
+        ('PL', gettext_lazy('Politics')),
+        ('FN', gettext_lazy('Finance')),
+        ('ED', gettext_lazy('Education')),
+        ('AT', gettext_lazy('Auto')),
+        ('SP', gettext_lazy('Sport')),
+    ]
+
+    category = models.CharField(max_length=2, choices=CATEGORIES, default='NW')
+    userCategory = models.ManyToManyField(User, through='UserCategory')
 
     def __str__(self):
-        return self.category_name
+        return f'{self.get_category_display()}'
+
+
+class UserCategory(models.Model):
+    userSubscribe = models.ForeignKey(User, on_delete=models.CASCADE)
+    categorySubscribe = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.userSubscribe} ~ {self.categorySubscribe}'
 
 
 class Post(models.Model):
-    news = 'news'
-    articles = 'articles'
+    POSTS = [
+        ('N', gettext_lazy('News')),
+        ('A', gettext_lazy('Article')),
+    ]
 
-    CHOICES = [
-        (news, 'Новости'),
-        (articles, 'Статьи')]
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
 
-    author = models.ForeignKey(Author, on_delete=models.PROTECT)
-    title = models.CharField(max_length=100)
-    text = models.TextField()
-    choice = models.CharField(max_length=10, choices=CHOICES, default=articles)
-    posting_time = models.DateTimeField(null=True)
-    category = models.ManyToManyField(Category, through='PostCategory')
-    post_rating = models.IntegerField(default=0)
+    post = models.CharField(gettext_lazy('post'), max_length=1, choices=POSTS, default='N')
+    time_in = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(gettext_lazy('title'), max_length=128)
+    text = models.TextField(gettext_lazy('text'), default='In progress')
+    rating = models.SmallIntegerField(default=0)
 
-    @property
-    def rating_post(self):  # Определяем рейтинг  публикации
-        return self.post_rating
+    category = models.ManyToManyField(Category, through='PostCategory', verbose_name=gettext_lazy('category'))
 
-    @rating_post.setter
-    def rating_post(self, value):  # Записываем рейтинг  публикации
-        self.post_rating = int(value) if value >= 0 else 0
-        self.save()
-
-    def like(self):
-        self.post_rating += 1
-        self.save()
-
-    def dislike(self):
-        self.post_rating -= 1
-        self.save()
-
-    def preview(self):   # Превью длинной 124 символа
-        return f'{self.text[:124]}...'
+    def get_title(self):
+        return str(self.title).upper()
 
     def __str__(self):
-        return f'{self.news.title()}: {self.text[:10]}'  # !!!!!!!!!!!!!!!!!!!!
+        return f'{self.get_title()}'
 
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
 
-
-class PostCategory(models.Model):
-    post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
-    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
-
-#    def __str__(self):
-#        return self.category  # !!!!!!!!!!!!!!!!!!!
-
-class Comment(models.Model):
-    comment_post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    comment_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment_text = models.TextField(null=False)
-    comment_date = models.DateTimeField(null=True)
-    comment_rating = models.IntegerField(default=0)
-
-    @property
-    def rating_comment(self):  # Определяем рейтинг комментария
-        return self.comment_rating
-
-    @rating_comment.setter
-    def rating_comment(self, value):  # Записываем рейтинг комментария
-        self.comment_rating = int(value) if value >= 0 else 0
-        self.save()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'post-{self.pk}')
 
     def like(self):
-        self.comment_rating += 1
+        self.rating += 1
         self.save()
 
     def dislike(self):
-        self.comment_rating -= 1
+        self.rating -= 1
         self.save()
+
+    def preview(self):
+        return f'{self.text[:50]}...'
+
+    def getpost(self):
+        return f'{self.get_post_display()}'
+
+    def date_in(self):
+        return self.time_in.date()
+
+
+class PostCategory(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f'{self.category.get_category_display()} ~ {self.post.get_title()}'
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+
+    text = models.TextField(default='...')
+    time_in = models.DateTimeField(auto_now_add=True)
+    rating = models.SmallIntegerField(default=0)
+
+    def __str__(self):
+        _of = gettext_lazy("of")
+        _from = gettext_lazy("from")
+        _with = gettext_lazy("with rating")
+
+        return f'{self.text} {_of} {self.user.first_name} {self.user.last_name.upper()} {_from} '\
+                  + f'{self.time_in.strftime("%d-%m-%y")} {_with} {self.rating}'
+
+    def like(self):
+        self.rating += 1
+        self.save()
+
+    def dislike(self):
+        self.rating -= 1
+        self.save()
+
+    def date_in(self):
+        return self.time_in.date()

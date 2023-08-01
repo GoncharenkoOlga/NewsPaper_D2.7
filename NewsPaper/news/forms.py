@@ -13,7 +13,7 @@ class PostForm(forms.ModelForm):
             'text',
             'title',
             'choice',
-            # 'posting_time',
+            #'posting_time',
             'category',
             'post_rating',
         ]  # можно прописать __all__
@@ -28,4 +28,3 @@ class PostForm(forms.ModelForm):
                     "Текст не должен быть идентичен названию."
                 )
             return cleaned_data
-

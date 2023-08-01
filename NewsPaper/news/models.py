@@ -1,23 +1,23 @@
-from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.validators import MinValueValidator
 
 
 class Author(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Связь: один к одному
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0, blank=True)
 
     @property
-    def rating_author(self):  # Определяем рейтинг автора публикации
+    def rating_author(self):
         return self.rating
 
     @rating_author.setter
-    def rating_author(self, value):  # Записываем рейтинг автора публикации
+    def rating_author(self, value):
         self.rating = int(value) if value >= 0 else 0
         self.save()
 
-    def update_rating(self):  # Пересчет рейтинга в соответствии с условием задачи
+    def update_rating(self):
         self.rating = 0
         self.comment_rating = 0
         self.post_rating = 0
@@ -31,12 +31,13 @@ class Author(models.Model):
         self.rating = (self.post_rating * 3) + self.comment_rating + self.total_comment_post
         self.save()
 
-    def __str__(self):  # При обращении возвращаем текст
+    def __str__(self):
         return self.user.username
 
 
 class Category(models.Model):
     category_name = models.CharField(max_length=100, unique=True)  # Название -- уникально
+    subscribers = models.ManyToManyField(User, related_name='categories')
 
     def __str__(self):
         return self.category_name
@@ -78,9 +79,6 @@ class Post(models.Model):
     def preview(self):   # Превью длинной 124 символа
         return f'{self.text[:124]}...'
 
-    def __str__(self):
-        return f'{self.news.title()}: {self.text[:10]}'  # !!!!!!!!!!!!!!!!!!!!
-
     def get_absolute_url(self):
         return reverse('post_detail', args=[str(self.id)])
 
@@ -89,8 +87,6 @@ class PostCategory(models.Model):
     post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
     category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
 
-#    def __str__(self):
-#        return self.category  # !!!!!!!!!!!!!!!!!!!
 
 class Comment(models.Model):
     comment_post = models.ForeignKey(Post, on_delete=models.CASCADE)

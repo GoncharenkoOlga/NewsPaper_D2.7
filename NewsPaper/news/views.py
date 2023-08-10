@@ -1,11 +1,19 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.shortcuts import render
-from datetime import datetime
+from django.shortcuts import render, redirect, get_object_or_404
+from datetime import datetime, timedelta
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .models import Post, Author
 from .filters import PostFilter
 from .forms import PostForm
-from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from news.models import Post, Category
+from news.filters import PostFilter
+from django.views.generic.edit import CreateView
+
+from django.http import HttpResponse
+from django.views import View
+from .tasks import hello, printer
 
 
 class PostsList(ListView):

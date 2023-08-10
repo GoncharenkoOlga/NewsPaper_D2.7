@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-#    'django_apscheduler'
+    'django_apscheduler'
 ]
 
 SITE_ID = 1
@@ -96,7 +96,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-# ACCOUNT_FORMS = {'signup': 'accounts.models.BasicSignupForm'}
+ACCOUNT_FORMS = {'signup': 'accounts.models.BasicSignupForm'}
 
 SITE_URL = 'http://127.0.0.1:8000'
 

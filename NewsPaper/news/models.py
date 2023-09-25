@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.core.validators import MinValueValidator
 
 
+
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     rating = models.IntegerField(default=0, blank=True)
@@ -34,14 +35,12 @@ class Author(models.Model):
     def __str__(self):
         return self.user.username
 
-
 class Category(models.Model):
-    category_name = models.CharField(max_length=100, unique=True)  # Название -- уникально
+    category_name = models.CharField(max_length= 100, unique=True)
     subscribers = models.ManyToManyField(User, related_name='categories')
 
     def __str__(self):
         return self.category_name
-
 
 class Post(models.Model):
     news = 'news'
@@ -49,22 +48,23 @@ class Post(models.Model):
 
     CHOICES = [
         (news, 'Новости'),
-        (articles, 'Статьи')]
+        (articles, 'Статьи')
+    ]
 
     author = models.ForeignKey(Author, on_delete=models.PROTECT)
     title = models.CharField(max_length=100)
     text = models.TextField()
     choice = models.CharField(max_length=10, choices=CHOICES, default=articles)
-    posting_time = models.DateTimeField(null=True)
-    category = models.ManyToManyField(Category, through='PostCategory')
+    posting_time = models.DateTimeField(null= True)
+    category = models.ManyToManyField(Category, through = 'PostCategory')
     post_rating = models.IntegerField(default=0)
 
     @property
-    def rating_post(self):  # Определяем рейтинг  публикации
+    def rating_post(self):
         return self.post_rating
 
     @rating_post.setter
-    def rating_post(self, value):  # Записываем рейтинг  публикации
+    def rating_post(self, value):
         self.post_rating = int(value) if value >= 0 else 0
         self.save()
 
@@ -76,7 +76,7 @@ class Post(models.Model):
         self.post_rating -= 1
         self.save()
 
-    def preview(self):   # Превью длинной 124 символа
+    def preview(self):
         return f'{self.text[:124]}...'
 
     def get_absolute_url(self):
@@ -84,8 +84,8 @@ class Post(models.Model):
 
 
 class PostCategory(models.Model):
-    post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
-    category = models.ForeignKey(Category, null=True, on_delete=models.CASCADE)  # Связь: один ко многим
+    post = models.ForeignKey(Post, null= True, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, null= True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.category.category_name} : {self.post.id}'
@@ -95,11 +95,11 @@ class Comment(models.Model):
     comment_post = models.ForeignKey(Post, on_delete=models.CASCADE)
     comment_user = models.ForeignKey(User, on_delete=models.CASCADE)
     comment_text = models.TextField(null=False)
-    comment_date = models.DateTimeField(null=True)
+    comment_date = models.DateTimeField(null = True)
     comment_rating = models.IntegerField(default=0)
 
     @property
-    def rating_comment(self):  # Определяем рейтинг комментария
+    def rating_comment(self):
         return self.comment_rating
 
     @rating_comment.setter

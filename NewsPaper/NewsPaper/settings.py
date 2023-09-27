@@ -109,7 +109,8 @@ EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'newspaper.sendmailer@yandex.ru'
 EMAIL_HOST_PASSWORD = 'azxmbozgwabmiuye'
-EMAIL_USE_SSL = True
+EMAIL_USE_SSL = False
+EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'newspaper.sendmailer' + '@yandex.ru'
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

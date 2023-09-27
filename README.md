@@ -1,3 +1,4 @@
+Добавлено ДЗ по модулю D6
 # NewsPaper_D2.7
 HomeWork_module_D2.7
 Проект NewsPaper. Итоговое задание

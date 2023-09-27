@@ -106,7 +106,7 @@ SITE_URL = 'http://127.0.0.1:8000'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 465
+EMAIL_PORT = 587
 EMAIL_HOST_USER = 'newspaper.sendmailer@yandex.ru'
 EMAIL_HOST_PASSWORD = 'azxmbozgwabmiuye'
 EMAIL_USE_SSL = True

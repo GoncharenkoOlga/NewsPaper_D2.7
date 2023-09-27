@@ -104,12 +104,12 @@ ACCOUNT_FORMS = {'signup': 'accounts.models.BasicSignupForm'}
 
 SITE_URL = 'http://127.0.0.1:8000'
 
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = 'newspaper.sendmailer'
+EMAIL_HOST_PASSWORD = '627silver'
 EMAIL_USE_SSL = True
-DEFAULT_FROM_EMAIL = 'newspaper.sendmailer' + '@gmail.com'
+DEFAULT_FROM_EMAIL = 'newspaper.sendmailer' + '@yandex.ru'
 
 APSCHEDULER_DATETIME_FORMAT = 'N j, Y, f:s a'
 APSCHEDULER_RUN_NOW_TIMEOUT = 25

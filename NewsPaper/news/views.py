@@ -10,6 +10,8 @@ from .forms import PostForm
 from news.models import Post, Category
 from news.filters import PostFilter
 from django.views.generic.edit import CreateView
+from django.core.mail import send_mail
+from django.core.cache import cache
 
 from django.http import HttpResponse
 from django.views import View
